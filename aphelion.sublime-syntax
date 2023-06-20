@@ -1,0 +1,77 @@
+%YAML 1.2
+---
+# See http://www.sublimetext.com/docs/3/syntax.html
+name: Aphelion
+file_extensions:
+  - aphel
+scope: source.aphelion
+
+contexts:
+  # The prototype context is prepended to all contexts but those setting
+  # meta_include_prototype: false.
+  # prototype:
+  #   - include: instructions
+  #   - include: block-comment
+
+  main:
+    # The main context is the initial starting point of our syntax.
+    # Include other contexts from here (or specify them directly).
+    - include: comments
+    - include: instructions
+    - include: directives
+    - include: labels
+    - include: numbers
+    - include: strings
+
+  instructions:
+    - match: "^\\s*(\\w+)\\s"
+      scope: keyword.control.aphelion
+    - match: "(?<=:)\\s*(\\w+)\\s"
+      scope: keyword.control.aphelion
+
+  directives:
+    - match: "\\.\\w+"
+      scope: meta.preprocessor.aphelion
+
+  registers:
+    - match: "\\b(r[a-kzA-KZ]|pc|sp|fp|st)\\b"
+      scope: variable.parameter.aphelion
+
+  block-comment:
+    - match: /\*
+      scope: punctuation.definition.comment.aphelion
+      push:
+        - meta_scope: comment.block.aphelion
+        - match: \*/
+          scope: punctuation.definition.comment.aphelion
+          pop: true
+        - include: block-comment
+
+  comments:
+    - include: block-comment
+    - match: "(\\s)*//.*$"
+      scope: comment.line.aphelion
+
+  numbers:
+    - match: "\\b((0b[0-1]+|0o[0-7]+|0x[0-9a-fA-F]+|\\d+))\\b"
+      scope: constant.numeric.aphelion
+
+  strings:
+    # Strings begin and end with quotes, and use backslashes as an escape
+    # character.
+    - match: "\"|\'"
+      scope: punctuation.definition.string.begin.aphelion
+      push: inside_string
+
+  inside_string:
+    - meta_include_prototype: false
+    - meta_scope: string.quoted.double.aphelion
+    - match: '\.'
+      scope: constant.character.escape.aphelion
+    - match: "\"|\'"
+      scope: punctuation.definition.string.end.aphelion
+      pop: true
+
+  labels:
+    - match: "^[A-Za-z_-][A-Za-z0-9_-]*:\\s"
+      scope: entity.name.function.aphelion
